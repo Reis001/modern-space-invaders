@@ -184,4 +184,26 @@ function animate() {
       particle.update();
     }
   });
+
+  invaterProjectiles.forEach((invaterProjectiles, index) => {
+    if (
+      invaterProjectiles.position.x - invaterProjectiles.height >=
+      canvas.height
+    ) {
+      setTimeout(() => {
+        invaterProjectiles.splice(index, 1);
+      }, 0);
+    } else {
+      invaterProjectiles.update();
+    }
+
+    if (
+      rectangularCollision({
+        rectangled1: invaterProjectiles,
+        rectangled2: player
+      })
+    ) {
+      invaterProjectiles.splice(index, 1);
+    }
+  });
 }
