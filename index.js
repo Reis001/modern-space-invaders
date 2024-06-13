@@ -204,6 +204,7 @@ function animate() {
       })
     ) {
       invaterProjectiles.splice(index, 1);
+      endGame();
     }
   });
 }
