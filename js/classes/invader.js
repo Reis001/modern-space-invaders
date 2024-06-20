@@ -18,6 +18,7 @@ class Invader {
       };
     };
   }
+
   draw() {
     c.drawImage(
       this.image,
@@ -27,19 +28,22 @@ class Invader {
       this.height
     );
   }
+
   update({ velocity }) {
     if (this.image) {
       this.draw();
-      this.position.x += this.velocity.x;
-      this.position.y += this.velocity.y;
+      this.position.x += velocity.x;
+      this.position.y += velocity.y;
     }
   }
-  shot(invaderProjectile) {
-    audio.enemyShot.play();
-    invaderProjectile.push(
+
+  shoot(invaderProjectiles) {
+    audio.enemyShoot.play();
+
+    invaderProjectiles.push(
       new InvaderProjectile({
         position: {
-          x: this.position.x,
+          x: this.position.x + this.width / 2,
           y: this.position.y + this.height
         },
         velocity: {

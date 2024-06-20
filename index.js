@@ -5,14 +5,13 @@ const c = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
+let player = new Player();
 let projectiles = [];
 let grids = [];
-let invaterProjectiles = [];
+let invaderProjectiles = [];
 let particles = [];
 let bombs = [];
 let powerUps = [];
-
-let player = new Player();
 
 let keys = {
   ArrowLeft: {
@@ -21,7 +20,7 @@ let keys = {
   ArrowRight: {
     pressed: false
   },
-  Space: {
+  space: {
     pressed: false
   }
 };
@@ -38,55 +37,54 @@ let score = 0;
 let spawnBuffer = 500;
 let fps = 60;
 let fpsInterval = 1000 / fps;
-
 let msPrev = window.performance.now();
 
 function init() {
   player = new Player();
   projectiles = [];
   grids = [];
-  invaterProjectiles = [];
+  invaderProjectiles = [];
   particles = [];
   bombs = [];
   powerUps = [];
-  frames = 0;
 
-  let keys = {
+  keys = {
     ArrowLeft: {
       pressed: false
     },
     ArrowRight: {
       pressed: false
     },
-    Space: {
+    space: {
       pressed: false
     }
   };
 
+  frames = 0;
   randomInterval = Math.floor(Math.random() * 500 + 500);
-
   game = {
     over: false,
     active: true
   };
 
   score = 0;
-}
-for (let i = 0; i < 100; i++) {
-  particles.push(
-    new Particle({
-      position: {
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height
-      },
-      velocity: {
-        x: 0,
-        y: 0.3
-      },
-      radius: Math.random() * 2,
-      color: "white"
-    })
-  );
+
+  for (let i = 0; i < 100; i++) {
+    particles.push(
+      new Particle({
+        position: {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height
+        },
+        velocity: {
+          x: 0,
+          y: 0.3
+        },
+        radius: Math.random() * 2,
+        color: "white"
+      })
+    );
+  }
 }
 
 function endGame() {
@@ -108,13 +106,16 @@ function endGame() {
     fades: true
   });
 }
+
 function animate() {
   if (!game.active) return;
   requestAnimationFrame(animate);
 
-  let msNow = window.performance.now();
-  let elapsed = msNow - msPrev;
+  const msNow = window.performance.now();
+  const elapsed = msNow - msPrev;
+
   if (elapsed < fpsInterval) return;
+
   msPrev = msNow - (elapsed % fpsInterval);
 
   c.fillStyle = "black";
@@ -122,6 +123,7 @@ function animate() {
 
   for (let i = powerUps.length - 1; i >= 0; i--) {
     const powerUp = powerUps[i];
+
     if (powerUp.position.x - powerUp.radius >= canvas.width)
       powerUps.splice(i, 1);
     else powerUp.update();
@@ -141,6 +143,7 @@ function animate() {
       })
     );
   }
+
   if (frames % 200 === 0 && bombs.length < 3) {
     bombs.push(
       new Bomb({
@@ -158,15 +161,18 @@ function animate() {
 
   for (let i = bombs.length - 1; i >= 0; i--) {
     const bomb = bombs[i];
+
     if (bomb.opacity <= 0) {
       bombs.splice(i, 1);
     } else bomb.update();
   }
 
   player.update();
-  for (let i = player.particles.lenght - 1; i >= 0; i--) {
+
+  for (let i = player.particles.length - 1; i >= 0; i--) {
     const particle = player.particles[i];
     particle.update();
+
     if (particle.opacity === 0) player.particles[i].splice(i, 1);
   }
 
@@ -185,28 +191,27 @@ function animate() {
     }
   });
 
-  invaterProjectiles.forEach((invaterProjectiles, index) => {
+  invaderProjectiles.forEach((invaderProjectile, index) => {
     if (
-      invaterProjectiles.position.x - invaterProjectiles.height >=
+      invaderProjectile.position.y + invaderProjectile.height >=
       canvas.height
     ) {
       setTimeout(() => {
-        invaterProjectiles.splice(index, 1);
+        invaderProjectiles.splice(index, 1);
       }, 0);
-    } else {
-      invaterProjectiles.update();
-    }
+    } else invaderProjectile.update();
 
     if (
       rectangularCollision({
-        rectangled1: invaterProjectiles,
-        rectangled2: player
+        rectangle1: invaderProjectile,
+        rectangle2: player
       })
     ) {
-      invaterProjectiles.splice(index, 1);
+      invaderProjectiles.splice(index, 1);
       endGame();
     }
   });
+
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const projectile = projectiles[i];
 
@@ -237,7 +242,7 @@ function animate() {
         projectile.radius + powerUp.radius
       ) {
         projectiles.splice(i, 1);
-        powerUp.splice(j, 1);
+        powerUps.splice(j, 1);
         player.powerUp = "Metralhadora";
         audio.bonus.play();
 
@@ -257,26 +262,27 @@ function animate() {
   grids.forEach((grid, gridIndex) => {
     grid.update();
 
-    if (frames % 100 === 0 && grid.invaders.lenght > 0) {
-      grid.invaders[Math.floor(Math.random() * grid.invaders.lenght)].shoot(
+    if (frames % 100 === 0 && grid.invaders.length > 0) {
+      grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(
         invaderProjectiles
       );
     }
-    for (let i = grid.invaers.lenght - 1; i >= 0; i--) {
+
+    for (let i = grid.invaders.length - 1; i >= 0; i--) {
       const invader = grid.invaders[i];
       invader.update({ velocity: grid.velocity });
 
-      for (let j = bombs.length - 1; j >= 0; i--) {
+      for (let j = bombs.length - 1; j >= 0; j--) {
         const bomb = bombs[j];
 
-        const invadersRadius = 15;
+        const invaderRadius = 15;
 
         if (
           Math.hypot(
             invader.position.x - bomb.position.x,
             invader.position.y - bomb.position.y
           ) <
-            invadersRadius + bomb.radius &&
+            invaderRadius + bomb.radius &&
           bomb.active
         ) {
           score += 50;
@@ -288,7 +294,7 @@ function animate() {
             score: 50
           });
 
-          createParticlesLabel({
+          createParticles({
             object: invader,
             fades: true
           });
@@ -298,14 +304,14 @@ function animate() {
       projectiles.forEach((projectile, j) => {
         if (
           projectile.position.y - projectile.radius <=
-            invader.position.y + invader.heigth &&
+            invader.position.y + invader.height &&
           projectile.position.x + projectile.radius >= invader.position.x &&
           projectile.position.x - projectile.radius <=
             invader.position.x + invader.width &&
           projectile.position.y + projectile.radius >= invader.position.y
         ) {
           setTimeout(() => {
-            const invaderFound = grid.invader.find(
+            const invaderFound = grid.invaders.find(
               (invader2) => invader2 === invader
             );
             const projectileFound = projectiles.find(
@@ -331,21 +337,21 @@ function animate() {
 
               if (grid.invaders.length > 0) {
                 const firstInvader = grid.invaders[0];
-                const lastInvader = grid.invaders[grid.invader.lenght - 1];
+                const lastInvader = grid.invaders[grid.invaders.length - 1];
 
                 grid.width =
                   lastInvader.position.x -
                   firstInvader.position.x +
-                  firstInvader.width;
-
+                  lastInvader.width;
                 grid.position.x = firstInvader.position.x;
               } else {
                 grids.splice(gridIndex, 1);
               }
             }
-          });
+          }, 0);
         }
       });
+
       if (
         rectangularCollision({
           rectangle1: invader,
@@ -356,12 +362,13 @@ function animate() {
         endGame();
     }
   });
-  if (keys.ArrowLeft.pressed && player.lenght.x >= 0) {
+
+  if (keys.ArrowLeft.pressed && player.position.x >= 0) {
     player.velocity.x = -7;
     player.rotation = -0.15;
   } else if (
     keys.ArrowRight.pressed &&
-    player.lenght.x + player.width <= canvas.width
+    player.position.x + player.width <= canvas.width
   ) {
     player.velocity.x = 7;
     player.rotation = 0.15;
@@ -379,7 +386,7 @@ function animate() {
   }
 
   if (
-    keys.Space.pressed &&
+    keys.space.pressed &&
     player.powerUp === "Metralhadora" &&
     frames % 2 === 0 &&
     !game.over
@@ -399,8 +406,10 @@ function animate() {
       })
     );
   }
+
   frames++;
 }
+
 document.querySelector("#startButton").addEventListener("click", () => {
   audio.backgroundMusic.play();
   audio.start.play();
@@ -416,4 +425,52 @@ document.querySelector("#restartButton").addEventListener("click", () => {
   document.querySelector("#restartScreen").style.display = "none";
   init();
   animate();
-})
+});
+
+addEventListener("keydown", ({ key }) => {
+  if (game.over) return;
+
+  switch (key) {
+    case "ArrowLeft":
+      keys.ArrowLeft.pressed = true;
+      break;
+    case "ArrowRight":
+      keys.ArrowRight.pressed = true;
+      break;
+    case " ":
+      keys.space.pressed = true;
+
+      if (player.powerUp === "Metralhadora") return;
+
+      audio.shoot.play();
+      projectiles.push(
+        new Projectile({
+          position: {
+            x: player.position.x + player.width / 2,
+            y: player.position.y
+          },
+          velocity: {
+            x: 0,
+            y: -10
+          }
+        })
+      );
+
+      break;
+  }
+});
+
+addEventListener("keyup", ({ key }) => {
+  switch (key) {
+    case "ArrowLeft":
+      keys.ArrowLeft.pressed = false;
+      break;
+    case "ArrowRight":
+      keys.ArrowRight.pressed = false;
+      break;
+    case " ":
+      keys.space.pressed = false;
+
+      break;
+  }
+});

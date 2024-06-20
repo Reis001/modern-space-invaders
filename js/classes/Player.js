@@ -4,10 +4,13 @@ class Player {
       x: 0,
       y: 0
     };
+
     this.rotation = 0;
     this.opacity = 1;
+
     const image = new Image();
-    image.src = "img/spaceship.png";
+
+    image.src = "./img/spaceship.png";
     image.onload = () => {
       const scale = 0.15;
       this.image = image;
@@ -18,6 +21,7 @@ class Player {
         y: canvas.height - this.height - 20
       };
     };
+
     this.particles = [];
     this.frames = 0;
   }
@@ -29,26 +33,34 @@ class Player {
       player.position.x + player.width / 2,
       player.position.y + player.height / 2
     );
+
     c.rotate(this.rotation);
+
     c.translate(
       -player.position.x - player.width / 2,
       -player.position.y - player.height / 2
     );
+
     c.drawImage(
       this.image,
-      player.position.x,
-      player.position.y,
+      this.position.x,
+      this.position.y,
       this.width,
       this.height
     );
     c.restore();
   }
+
   update() {
     if (!this.image) return;
+
     this.draw();
     this.position.x += this.velocity.x;
+
     if (this.opacity !== 1) return;
+
     this.frames++;
+
     if (this.frames % 2 === 0) {
       this.particles.push(
         new Particle({

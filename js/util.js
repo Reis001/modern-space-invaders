@@ -4,7 +4,6 @@ function randomBetween(min, max) {
 
 function createScoreLabel({ score = 100, object }) {
   const scoreLabel = document.createElement("label");
-
   scoreLabel.innerHTML = score;
   scoreLabel.style.position = "absolute";
   scoreLabel.style.color = "white";
@@ -24,11 +23,11 @@ function createScoreLabel({ score = 100, object }) {
   });
 }
 
-function rectangularCollission({ rectangle1, rectangle2 }) {
+function rectangularCollision({ rectangle1, rectangle2 }) {
   return (
     rectangle1.position.y + rectangle1.height >= rectangle2.position.y &&
-    rectangle1.position.x + rectangle1.widht >= rectangle2.position.x &&
-    rectangle1.position.x <= rectangle2.position.x + rectangle2.widht
+    rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
+    rectangle1.position.x <= rectangle2.position.x + rectangle2.width
   );
 }
 
@@ -46,7 +45,7 @@ function createParticles({ object, color, fades }) {
         },
         radius: Math.random() * 3,
         color: color || "#BAA0DE",
-        fades: fades
+        fades
       })
     );
   }
